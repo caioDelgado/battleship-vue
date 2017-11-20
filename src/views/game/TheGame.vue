@@ -68,6 +68,7 @@
     },
     methods: {
       select () {
+        this.record = this.ds.record.getRecord(`battleship/game/${this.$route.params.game}`)
         this.handleThem()
         this.handleUs()
       },

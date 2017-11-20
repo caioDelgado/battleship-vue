@@ -65,8 +65,8 @@
           name: 'theGame',
           params: {
             columns: this.$refs.tableBoard.columns,
-            player: 1,
-            game: 'sadasd'
+            player: this.$route.params.player,
+            game: this.$route.params.game
           }
         })
       }

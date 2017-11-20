@@ -58,7 +58,8 @@
           if (!x.me && x.hit) return 'is-info'
         }
         if (x.hit) return 'is-danger'
-        if (x.me) return 'is-success'
+        if (x.me) return ''
+        return ''
       },
       setShip (args) {
         this.ship.id = args.id
