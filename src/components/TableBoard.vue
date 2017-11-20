@@ -58,7 +58,7 @@
           if (!x.me && x.hit) return 'is-info'
         }
         if (x.hit) return 'is-danger'
-        if (x.me) return ''
+        if (x.me) return 'is-success'
         return ''
       },
       setShip (args) {
