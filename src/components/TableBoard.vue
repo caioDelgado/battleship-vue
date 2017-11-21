@@ -56,9 +56,11 @@
           if (x.me && x.hit) return 'is-danger'
           if (x.me && !x.hit) return 'is-dark'
           if (!x.me && x.hit) return 'is-info'
+        } else {
+          if (x.hit && x.me) return 'is-danger'
+          if (x.hit) return 'is-info'
+          if (x.me) return ''
         }
-        if (x.hit) return 'is-danger'
-        if (x.me) return 'is-success'
         return ''
       },
       setShip (args) {

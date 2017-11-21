@@ -48,7 +48,8 @@
           {id: 4, src: 'ship4.png', length: 4},
           {id: 5, src: 'ship5.png', length: 5}
         ],
-        orientation: 'H'
+        orientation: 'H',
+        ships: []
       }
     },
     components: {
@@ -61,12 +62,29 @@
         this.$refs.tableBoard.setShip(args)
       },
       startTheGame () {
+        let fleet = {}
+        for (let y = 0; y < this.$refs.tableBoard.columns.length; y++) {
+          for (let x = 0; x < this.$refs.tableBoard.columns[y].rows.length; x++) {
+            if (this.$refs.tableBoard.columns[y].rows[x].me) {
+              let ship = {
+                x: x,
+                y: y,
+                id: this.$refs.tableBoard.columns[y].rows[x].idShip,
+                status: true
+              }
+              if (!fleet[ship.id]) fleet[ship.id] = []
+              fleet[ship.id].push(ship)
+            }
+          }
+        }
+
         this.$router.push({
           name: 'theGame',
           params: {
             columns: this.$refs.tableBoard.columns,
             player: this.$route.params.player,
-            game: this.$route.params.game
+            game: this.$route.params.game,
+            fleet: fleet
           }
         })
       }

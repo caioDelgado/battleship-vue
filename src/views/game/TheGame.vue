@@ -1,6 +1,16 @@
 <template>
   <div class="column is-12">
     <div class="columns">
+      <div class="column is-4">
+        <div v-if="!isPlaying()" class="has-text-warning">
+          <p>Aguardando outro jogador ... ... ...</p>
+        </div>
+        <div v-if="isPlaying()" class="has-text-info">
+          <p>Faça sua jogada !</p>
+        </div>
+      </div>
+    </div>
+    <div class="columns">
       <div class="column is-6">
         <div class="box">
           <table-board ref="tableBoardUs" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 1" :columns="columnsUs"></table-board>
@@ -28,6 +38,9 @@
         player: null,
         record: null,
         recordPlayer: null,
+        recordFleet: null,
+        fleetUs: {},
+        fleetThem: {},
         idShip: 0,
         shipsFleet: [
           {id: 1, src: 'ship1.png', length: 1},
@@ -69,7 +82,7 @@
       FleetBoard
     },
     methods: {
-      select () {
+      select (args) {
         if (this.playerPlaying === 1 && this.player === 1) {
           this.recordPlayer.set('playerPlaying', 2)
         } else {
@@ -77,6 +90,31 @@
         }
         this.handleThem()
         this.handleUs()
+
+        let fleet
+        if (this.player === 1) {
+          fleet = this.fleetThem
+        } else {
+          fleet = this.fleetUs
+        }
+        for (const prop in fleet) {
+          for (let x = 0; x < fleet[prop].length; x++) {
+            const ship = fleet[prop][x]
+            if (ship.x === args.x && ship.y === args.y) {
+              fleet[prop][x].status = false
+              alert('Acertou miseravi')
+              let rest = 0
+              for (let x = 0; x < fleet[prop].length; x++) {
+                if (fleet[prop][x].status) {
+                  rest++
+                }
+              }
+              if (rest === 0) {
+                alert('Já era esse navio')
+              }
+            }
+          }
+        }
       },
       isPlaying () {
         return this.player === this.playerPlaying
@@ -89,6 +127,7 @@
       }
     },
     created () {
+      this.recordFleet = this.ds.record.getRecord(`battleship/fleet/${this.$route.params.game}`)
       this.record = this.ds.record.getRecord(`battleship/game/${this.$route.params.game}`)
       this.recordPlayer = this.ds.record.getRecord(`battleship/player/${this.$route.params.game}`)
       this.player = this.$route.params.player
@@ -96,9 +135,15 @@
       if (this.player === 1) {
         this.record.set('columnsUs', this.$route.params.columns)
         this.columnsUs = this.$route.params.columns
+
+        this.recordFleet.set('fleetUs', this.$route.params.fleet)
+        this.fleetUs = this.$route.params.fleet
       } else {
         this.record.set('columnsThem', this.$route.params.columns)
         this.columnsThem = this.$route.params.columns
+
+        this.recordFleet.set('fleetThem', this.$route.params.fleet)
+        this.fleetThem = this.$route.params.fleet
       }
 
       this.recordPlayer.set('playerPlaying', 1)
@@ -111,6 +156,11 @@
 
       this.recordPlayer.subscribe(values => {
         this.playerPlaying = values.playerPlaying
+      })
+
+      this.recordFleet.subscribe(values => {
+        this.fleetThem = values.fleetThem
+        this.fleetUs = values.fleetUs
       })
     }
   }
