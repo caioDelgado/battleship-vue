@@ -57,7 +57,8 @@
           name: 'initGame',
           params: {
             player: this.playerNumber,
-            game: this.game
+            game: this.game,
+            playerName: this.player
           }
         })
       },
@@ -76,6 +77,11 @@
         this.follow = values.follow
         this.game = values.game
       })
+    },
+    mounted () {
+      if (this.$route.params.player) {
+        this.player = this.$route.params.player
+      }
     }
   }
 </script>

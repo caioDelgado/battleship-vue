@@ -84,7 +84,8 @@
             columns: this.$refs.tableBoard.columns,
             player: this.$route.params.player,
             game: this.$route.params.game,
-            fleet: fleet
+            fleet: fleet,
+            playerName: this.$route.params.playerName
           }
         })
       }

@@ -1,26 +1,51 @@
 <template>
   <div class="column is-12">
-    <div class="columns">
-      <div class="column is-4">
-        <div v-if="!isPlaying()" class="has-text-warning">
-          <p>Aguardando outro jogador ... ... ...</p>
+    <div v-if="!winner">
+      <div class="columns">
+        <div class="column is-4">
+          <div v-if="!isPlaying()" class="has-text-warning">
+            <p>Aguardando {{player === 1 ? nameThem : nameUs}} jogar ... ... ...</p>
+          </div>
+          <div v-if="isPlaying()" class="has-text-info">
+            <p>{{player === 1 ? nameUs : nameThem}}, faça sua jogada !</p>
+          </div>
         </div>
-        <div v-if="isPlaying()" class="has-text-info">
-          <p>Faça sua jogada !</p>
+      </div>
+      <div class="columns">
+        <div class="column is-6">
+          <div class="box">
+            <div v-if="player === 1">
+              <table-board ref="tableBoardUs" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 1" :columns="columnsUs"></table-board>
+            </div>
+            <div v-if="player === 2">
+              <table-board ref="tableBoardThem" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 2" :columns="columnsThem"></table-board>
+            </div>
+          </div>
+        </div>
+        <div class="column is-6">
+          <div class="box">
+            <div v-if="player === 1">
+              <table-board ref="tableBoardThem" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 2" :columns="columnsThem"></table-board>
+            </div>
+            <div v-if="player === 2">
+              <table-board ref="tableBoardUs" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 1" :columns="columnsUs"></table-board>
+            </div>
+          </div>
         </div>
       </div>
     </div>
-    <div class="columns">
-      <div class="column is-6">
-        <div class="box">
-          <table-board ref="tableBoardUs" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 1" :columns="columnsUs"></table-board>
-        </div>
+    <div v-if="winner">
+      <div v-if="winner === player">
+        <p class="has-text-info">
+          Winner !!! :)
+        </p>
       </div>
-      <div class="column is-6">
-        <div class="box">
-          <table-board ref="tableBoardThem" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 2" :columns="columnsThem"></table-board>
-        </div>
+      <div v-if="winner !== player">
+        <p class="has-text-danger">
+          Looser !!! :(
+        </p>
       </div>
+      <router-link :to="{name: 'awaitPlayers', params: {player: player === 1 ? nameUs : nameThem }}">Novo jogo</router-link>
     </div>
   </div>
 </template>
@@ -41,6 +66,8 @@
         recordFleet: null,
         fleetUs: {},
         fleetThem: {},
+        nameUs: '',
+        nameThem: '',
         idShip: 0,
         shipsFleet: [
           {id: 1, src: 'ship1.png', length: 1},
@@ -74,7 +101,8 @@
           {y: 8, rows: [{x: 0, hit: false}, {x: 1, hit: false}, {x: 2, hit: false}, {x: 3, hit: false}, {x: 4, hit: false}, {x: 5, hit: false}, {x: 6, hit: false}, {x: 7, hit: false}, {x: 8, hit: false}, {x: 9, hit: false}]},
           {y: 9, rows: [{x: 0, hit: false}, {x: 1, hit: false}, {x: 2, hit: false}, {x: 3, hit: false}, {x: 4, hit: false}, {x: 5, hit: false}, {x: 6, hit: false}, {x: 7, hit: false}, {x: 8, hit: false}, {x: 9, hit: false}]}
         ],
-        playerPlaying: null
+        playerPlaying: null,
+        winner: false
       }
     },
     components: {
@@ -97,6 +125,7 @@
         } else {
           fleet = this.fleetUs
         }
+
         for (const prop in fleet) {
           for (let x = 0; x < fleet[prop].length; x++) {
             const ship = fleet[prop][x]
@@ -110,7 +139,20 @@
                 }
               }
               if (rest === 0) {
-                alert('Já era esse navio')
+                let theEnd = true
+                for (const propI in fleet) {
+                  for (let i = 0; i < fleet[propI].length; i++) {
+                    if (fleet[prop][x].status) {
+                      theEnd = false
+                    }
+                  }
+                }
+                if (theEnd) {
+                  this.recordPlayer.set('winner', this.player)
+                  alert('Biiiuurrr ! Você ganhou !!')
+                } else {
+                  alert('Já era esse navio')
+                }
               }
             }
           }
@@ -138,12 +180,16 @@
 
         this.recordFleet.set('fleetUs', this.$route.params.fleet)
         this.fleetUs = this.$route.params.fleet
+        this.recordFleet.set('nameUs', this.$route.params.playerName)
+        this.nameUs = this.$route.params.playerName
       } else {
         this.record.set('columnsThem', this.$route.params.columns)
         this.columnsThem = this.$route.params.columns
 
         this.recordFleet.set('fleetThem', this.$route.params.fleet)
         this.fleetThem = this.$route.params.fleet
+        this.recordFleet.set('nameThem', this.$route.params.playerName)
+        this.nameThem = this.$route.params.playerName
       }
 
       this.recordPlayer.set('playerPlaying', 1)
@@ -156,11 +202,15 @@
 
       this.recordPlayer.subscribe(values => {
         this.playerPlaying = values.playerPlaying
+        this.winner = values.winner
       })
 
       this.recordFleet.subscribe(values => {
         this.fleetThem = values.fleetThem
         this.fleetUs = values.fleetUs
+
+        this.nameThem = values.nameThem
+        this.nameUs = values.nameUs
       })
     }
   }
