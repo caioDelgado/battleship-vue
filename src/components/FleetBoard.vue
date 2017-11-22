@@ -25,7 +25,7 @@
         return id === this.selectedShip ? 'img-selected' : ''
       },
       imageUrl (img) {
-        return require('@/assets/templateS/ships/' + img)
+        return require('@/assets/templates/ships/' + img)
       }
     }
   }
