@@ -1,17 +1,19 @@
 <template>
   <div class="box column is-12">
-    <div class="columns">
-      <div class="column is-4">
-        <input type="text" class="input" v-model="player" :disabled="isDisabled" @change="onChange">
-      </div>
-      <div class="column is-1">
-        <a class="button is-info" @click="enter" :disabled="isDisabled">Entrar</a>
-      </div>
-      <div class="column is-4" v-if="isDisabled && !vIf()">
-        <p>Aguardando segundo jogador ... ... ...</p>
-      </div>
-      <div class="column is-3" v-if="vIf() && isDisabled">
-        <a class="button is-success" @click="start">Iniciar</a>
+    <div class="columns hero is-info">
+      <div class="column is-offset-one-quarter is-half hero is-dark columns">
+        <div class="colum is-12">
+          <p>Seja bem vindo, {{player}} !</p>
+        </div>
+        <div class="column is-12">
+          <a class="button is-info" @click="enter" v-if="!isDisabled">Entrar</a>
+          <div class="column is-12" v-if="isDisabled && !vIf()">
+            <p>Aguardando segundo jogador ... ... ...</p>
+          </div>
+          <div class="column is-12" v-if="vIf() && isDisabled">
+            <a class="button is-success" @click="start">Iniciar</a>
+          </div>
+        </div>
       </div>
     </div>
   </div>
@@ -79,6 +81,8 @@
       })
     },
     mounted () {
+      this.player = this.$route.params.user
+      if (!this.player) this.$router.push('/')
       if (this.$route.params.player) {
         this.player = this.$route.params.player
       }
