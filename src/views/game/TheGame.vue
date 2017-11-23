@@ -142,7 +142,7 @@
                 let theEnd = true
                 for (const propI in fleet) {
                   for (let i = 0; i < fleet[propI].length; i++) {
-                    if (fleet[prop][x].status) {
+                    if (fleet[propI][i].status) {
                       theEnd = false
                     }
                   }
