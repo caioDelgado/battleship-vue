@@ -1,93 +1,81 @@
 <template>
-  <div class="column is-12">
-    <div class="columns">
-      <div class="column is-6">
-        <div class="box">
-          <table-board ref="tableBoard" :orientation="orientation"></table-board>
-        </div>
+  <div class="hero is-info box column is-12">
+    <section class="columns">
+      <div class="column is-6 has-text-right">
+        <a class="button is-light" @click="isNewPlayer = true">Soldado</a>
       </div>
-      <div class="column is-6">
-        <div class="box">
-          <div class="columns">
-            <div class="column is-4">
-              <div class="control">
-                <label class="radio">
-                  <input type="radio" name="orientation" value="V" v-model="orientation">
-                  Vertical
-                </label>
-                <label class="radio">
-                  <input type="radio" name="orientation" value="H" v-model="orientation" checked>
-                  horizontal
-                </label>
-              </div>
-            </div>
-            <div class="column is-2 is-offset-6">
-              <a class="button is-primary" @click="startTheGame">Iniciar</a>
+      <div class="column is-6 has-text-left">
+        <a class="button is-dark" @click="isNewPlayer = false">Veterano</a>
+      </div>
+    </section>
+    <section class="hero columns" :class="isNewPlayer ? 'is-light' : 'is-dark'">
+      <div class="column is-offset-one-quarter is-half hero is-info">
+        <div v-if="isNewPlayer">
+          <div class="field">
+            <div class="control"><input type="text" v-model="newUser" placeholder="Usuário" class="input"></div>
+          </div>
+          <div class="field">
+            <div class="control"><input type="password" v-model="newPassword" placeholder="Senha" class="input"></div>
+          </div>
+          <div class="field">
+            <div class="control"><input type="password" v-model="confirmPassword" placeholder="Verificar Senha" class="input">
             </div>
           </div>
         </div>
-        <div class="box">
-          <fleet-board ref="fleetBoard" @select="select" :ships="shipsFleet"></fleet-board>
+
+        <div v-if="!isNewPlayer">
+          <div class="field">
+            <div class="control">
+              <input type="text" class="input" v-model="userPlayer" placeholder="Usuário">
+            </div>
+          </div>
+          <div class="field">
+            <div class="control">
+              <input type="password" class="input" v-model="passwordPlayer" placeholder="Senha">
+            </div>
+          </div>
+          <br>
+          <br>
         </div>
       </div>
-    </div>
+    </section>
+    <section class="hero is-info column is-offset-one-quarter is-half columns">
+      <div class="column is-offset-one-quarter is-half">
+        <a class="button is-dark" @click="isNewPlayer ? register() : enter()">{{isNewPlayer ? 'Alistar-se' : 'Entrar à bordo' }}</a>
+      </div>
+    </section>
   </div>
 </template>
 
 <script>
-  import TableBoard from '@/components/TableBoardSelect'
-  import FleetBoard from '@/components/FleetBoard'
+  import axios from 'axios'
   export default {
     data () {
       return {
-        idShip: 0,
-        shipsFleet: [
-          {id: 1, src: 'ship1.png', length: 1},
-          {id: 2, src: 'ship2.png', length: 2},
-          {id: 3, src: 'ship3.png', length: 3},
-          {id: 4, src: 'ship4.png', length: 4},
-          {id: 5, src: 'ship5.png', length: 5}
-        ],
-        orientation: 'H',
-        ships: []
+        isNewPlayer: true,
+        userPlayer: null,
+        passwordPlayer: null,
+        newUser: null,
+        newPassword: null,
+        confirmPassword: null
       }
     },
-    components: {
-      TableBoard,
-      FleetBoard
-    },
     methods: {
-      select (args) {
-        this.idShip = args
-        this.$refs.tableBoard.setShip(args)
+      enter () {
+        axios.get(`http://localhost:3001/api/login?user=${this.userPlayer}&password=${this.passwordPlayer}`)
+          .then(response => {
+            alert('Bem vindo novamente soldado !')
+            this.$router.push({
+              name: 'awaitPlayers',
+              params: { user: response.data.user }
+            })
+          })
+          .catch(err => {
+            alert(err.response.data.message)
+          })
       },
-      startTheGame () {
-        let fleet = {}
-        for (let y = 0; y < this.$refs.tableBoard.columns.length; y++) {
-          for (let x = 0; x < this.$refs.tableBoard.columns[y].rows.length; x++) {
-            if (this.$refs.tableBoard.columns[y].rows[x].me) {
-              let ship = {
-                x: x,
-                y: y,
-                id: this.$refs.tableBoard.columns[y].rows[x].idShip,
-                status: true
-              }
-              if (!fleet[ship.id]) fleet[ship.id] = []
-              fleet[ship.id].push(ship)
-            }
-          }
-        }
-
-        this.$router.push({
-          name: 'theGame',
-          params: {
-            columns: this.$refs.tableBoard.columns,
-            player: this.$route.params.player,
-            game: this.$route.params.game,
-            fleet: fleet,
-            playerName: this.$route.params.playerName
-          }
-        })
+      register () {
+        alert('register')
       }
     }
   }
@@ -98,9 +86,9 @@
     font-size: 24px
     color: #ffa726
     cursor: pointer
-  .fa-thumbs-o-down
-    font-size: 62px
-    color: #e34120
-  .title
-    font-size: 20px
+    .fa-thumbs-o-down
+      font-size: 62px
+      color: #e34120
+    .title
+      font-size: 20px
 </style>
