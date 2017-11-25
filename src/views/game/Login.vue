@@ -49,6 +49,7 @@
 
 <script>
   import axios from 'axios'
+  import { mapActions } from 'vuex'
   export default {
     data () {
       return {
@@ -61,10 +62,11 @@
       }
     },
     methods: {
+      ...mapActions('Login', ['login']),
       enter () {
         axios.get(`http://localhost:3001/api/login?user=${this.userPlayer}&password=${this.passwordPlayer}`)
           .then(response => {
-            alert('Bem vindo novamente soldado !')
+            this.login(response.data)
             this.$router.push({
               name: 'awaitPlayers',
               params: { user: response.data.user }
