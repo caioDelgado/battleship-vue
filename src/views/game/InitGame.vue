@@ -78,16 +78,24 @@
           }
         }
 
-        this.$router.push({
-          name: 'theGame',
-          params: {
-            columns: this.$refs.tableBoard.columns,
-            player: this.$route.params.player,
-            game: this.$route.params.game,
-            fleet: fleet,
-            playerName: this.$route.params.playerName
-          }
+        const fleetSelecteds = Object.keys(fleet).reduce((x, acc) => {
+          return acc++
         })
+
+        if (fleetSelecteds === 5) {
+          this.$router.push({
+            name: 'theGame',
+            params: {
+              columns: this.$refs.tableBoard.columns,
+              player: this.$route.params.player,
+              game: this.$route.params.game,
+              fleet: fleet,
+              playerName: this.$route.params.playerName
+            }
+          })
+        } else {
+          alert('Pqp aspira, selecione todos os barcos !')
+        }
       }
     }
   }
