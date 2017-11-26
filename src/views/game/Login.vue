@@ -67,14 +67,25 @@
           user: this.userPlayer,
           password: this.passwordPlayer
         }
-        axios.post(`http://localhost:3001/api/users`, params)
-          .then(response => {
-            this.login(response.data.data)
-            localStorage.setItem('userLogged', response.data.data.user)
-            this.$router.push({
-              name: 'awaitPlayers',
-              params: { user: response.data.data.user }
-            })
+
+        axios.get(`http://localhost:3001/api/users?user=${this.userPlayer}`)
+          .then(users => {
+            if (users.data.data.length) {
+              alert('Usuário já existente')
+            } else {
+              axios.post(`http://localhost:3001/api/users`, params)
+                .then(response => {
+                  this.login(response.data.data)
+                  localStorage.setItem('userLogged', response.data.data.user)
+                  this.$router.push({
+                    name: 'awaitPlayers',
+                    params: { user: response.data.data.user }
+                  })
+                })
+                .catch(err => {
+                  alert(err.response.data)
+                })
+            }
           })
           .catch(err => {
             alert(err.response.data)
