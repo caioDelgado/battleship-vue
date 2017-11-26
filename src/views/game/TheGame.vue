@@ -131,21 +131,23 @@
     },
     methods: {
       setTimer () {
-        if (this.isPlaying()) {
-          this.timer--
-          setTimeout(this.setTimer, 1000)
-        } else {
-          this.timer = 20
-          setTimeout(this.setTimer, 1000)
-        }
-
-        if (this.timer === 0) {
-          if (this.playerPlaying === 1 && this.player === 1) {
-            this.recordPlayer.set('playerPlaying', 2)
+        if (!this.winner) {
+          if (this.isPlaying()) {
+            this.timer--
+            setTimeout(this.setTimer, 1000)
           } else {
-            this.recordPlayer.set('playerPlaying', 1)
+            this.timer = 20
+            setTimeout(this.setTimer, 1000)
           }
-          alert('Demorou demais :I ')
+
+          if (this.timer === 0) {
+            if (this.playerPlaying === 1 && this.player === 1) {
+              this.recordPlayer.set('playerPlaying', 2)
+            } else {
+              this.recordPlayer.set('playerPlaying', 1)
+            }
+            alert('Demorou demais :I ')
+          }
         }
       },
       addNewMsg () {
