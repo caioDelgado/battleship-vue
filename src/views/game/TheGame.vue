@@ -1,6 +1,6 @@
 <template>
-  <div class="column is-12">
-    <div v-if="!winner" class="box">
+  <div class="column is-12 main">
+    <div v-if="!winner" class="box" :style="{'background-image': `url(${imageUrl(skin)})`}">
       <div class="columns">
         <div class="column is-10 has-text-left">
           <div v-if="!isPlaying()" class="has-text-warning">
@@ -122,7 +122,9 @@
           {y: 9, rows: [{x: 0, hit: false}, {x: 1, hit: false}, {x: 2, hit: false}, {x: 3, hit: false}, {x: 4, hit: false}, {x: 5, hit: false}, {x: 6, hit: false}, {x: 7, hit: false}, {x: 8, hit: false}, {x: 9, hit: false}]}
         ],
         playerPlaying: null,
-        winner: false
+        winner: false,
+        skin: '',
+        recordSkin: null
       }
     },
     components: {
@@ -130,6 +132,9 @@
       FleetBoard
     },
     methods: {
+      imageUrl (img) {
+        return require('@/assets/templates/themes/' + img)
+      },
       setTimer () {
         if (!this.winner) {
           if (this.isPlaying()) {
@@ -214,6 +219,7 @@
       }
     },
     created () {
+      this.recordSkin = this.ds.record.getRecord(`battleship/skin/${this.$route.params.game}`)
       this.recordFleet = this.ds.record.getRecord(`battleship/fleet/${this.$route.params.game}`)
       this.record = this.ds.record.getRecord(`battleship/game/${this.$route.params.game}`)
       this.recordPlayer = this.ds.record.getRecord(`battleship/player/${this.$route.params.game}`)
@@ -265,6 +271,14 @@
       })
 
       this.setTimer()
+
+      this.skin = this.$route.params.skinSelected
+      if (this.skin) {
+        this.recordSkin.set('skin', this.skin)
+      }
+      this.recordSkin.subscribe(values => {
+        this.skin = values.skin
+      })
     }
   }
 </script>
@@ -277,8 +291,6 @@
   .fa-thumbs-o-down
     font-size: 62px
     color: #e34120
-  .title
-    font-size: 20px
   .them-table
     font-size: 12px
   .text-area
@@ -286,4 +298,6 @@
     margin-bottom: 20px
     max-height: 81%
     overflow: scroll
+  .main
+    margin-top: -20px
 </style>

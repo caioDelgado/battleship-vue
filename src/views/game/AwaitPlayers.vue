@@ -1,18 +1,38 @@
 <template>
-  <div class="box column is-12">
-    <div class="columns hero is-info">
-      <div class="column is-offset-one-quarter is-half hero is-dark columns">
-        <div class="colum is-12">
-          <p>Seja bem vindo, {{player}} !</p>
-        </div>
-        <div class="column is-12">
-          <a class="button is-info" @click="enter" v-if="!isDisabled">Novo jogo</a>
-          <a class="button is-danger" @click="exit" v-if="!isDisabled">Sair</a>
-          <div class="column is-12" v-if="isDisabled && !vIf()">
-            <p>Aguardando segundo jogador ... ... ...</p>
+  <div>
+    <div class="modal is-active" v-if="modalSkin">
+      <div class="modal-background"></div>
+      <div class="modal-card">
+        <header class="modal-card-head">
+          <p class="modal-card-title">Selecione um tema !</p>
+        </header>
+        <section class="modal-card-body columns">
+          <div v-for="x in skins" class="column is-4">
+            <div class="field">
+              <img class="image" :src="imageUrl(x.src)">
+            </div>
+            <div class="field">
+              <a class="button is-inverted" @click="selectSkin(x.src)">Tema: {{x.name}}</a>
+            </div>
           </div>
-          <div class="column is-12" v-if="vIf() && isDisabled">
-            <a class="button is-success" @click="start">Iniciar</a>
+        </section>
+      </div>
+    </div>
+    <div class="box column is-12">
+      <div class="columns hero is-info">
+        <div class="column is-offset-one-quarter is-half hero is-dark columns">
+          <div class="colum is-12">
+            <p>Seja bem vindo, {{player}} !</p>
+          </div>
+          <div class="column is-12">
+            <a class="button is-info" @click="enter" v-if="!isDisabled">Novo jogo</a>
+            <a class="button is-danger" @click="exit" v-if="!isDisabled">Sair</a>
+            <div class="column is-12" v-if="isDisabled && !vIf()">
+              <p>Aguardando segundo jogador ... ... ...</p>
+            </div>
+            <div class="column is-12" v-if="vIf() && isDisabled">
+              <a class="button is-success" @click="start">Iniciar</a>
+            </div>
           </div>
         </div>
       </div>
@@ -33,11 +53,25 @@
         playerNumber: 0,
         isDisabled: false,
         follow: '',
-        game: ''
+        game: '',
+        modalSkin: false,
+        skinSelected: '',
+        skins: [
+          {name: 'Piratas', src: 'tema-pirata.png'},
+          {name: 'Guerra', src: 'tema-guerra.png'},
+          {name: 'Espacial', src: 'tema-espacial.png'}
+        ]
       }
     },
     components: {},
     methods: {
+      selectSkin (skin) {
+        this.skinSelected = skin
+        this.modalSkin = false
+      },
+      imageUrl (img) {
+        return require('@/assets/templates/themes/' + img)
+      },
       enter () {
         this.record = this.ds.record.getRecord(`battleship/game/queue`)
         this.isDisabled = true
@@ -55,11 +89,15 @@
           this.playerNumber = 1
           this.players.push(this.player)
           this.record.set('players', this.players)
+          this.showModalSkin()
         }
       },
       exit () {
         localStorage.clear()
         location.reload()
+      },
+      showModalSkin () {
+        this.modalSkin = true
       },
       start () {
         this.$router.push({
@@ -67,7 +105,8 @@
           params: {
             player: this.playerNumber,
             game: this.game,
-            playerName: this.player
+            playerName: this.player,
+            skinSelected: this.skinSelected
           }
         })
       },
@@ -108,4 +147,5 @@
     color: #e34120
   .title
     font-size: 20px
+
 </style>

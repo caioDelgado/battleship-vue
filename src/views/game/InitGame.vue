@@ -90,7 +90,8 @@
               player: this.$route.params.player,
               game: this.$route.params.game,
               fleet: fleet,
-              playerName: this.$route.params.playerName
+              playerName: this.$route.params.playerName,
+              skinSelected: this.$route.params.skinSelected
             }
           })
         } else {
