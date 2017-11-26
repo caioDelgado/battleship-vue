@@ -6,7 +6,8 @@
           <p>Seja bem vindo, {{player}} !</p>
         </div>
         <div class="column is-12">
-          <a class="button is-info" @click="enter" v-if="!isDisabled">Entrar</a>
+          <a class="button is-info" @click="enter" v-if="!isDisabled">Novo jogo</a>
+          <a class="button is-danger" @click="exit" v-if="!isDisabled">Sair</a>
           <div class="column is-12" v-if="isDisabled && !vIf()">
             <p>Aguardando segundo jogador ... ... ...</p>
           </div>
@@ -49,10 +50,16 @@
           this.players = []
           this.record.set('players', this.players)
         } else {
+          this.follow = ''
+          this.record.set('follow', this.follow)
           this.playerNumber = 1
           this.players.push(this.player)
           this.record.set('players', this.players)
         }
+      },
+      exit () {
+        localStorage.clear()
+        location.reload()
       },
       start () {
         this.$router.push({
@@ -82,6 +89,7 @@
     },
     mounted () {
       this.player = this.$route.params.user
+      if (!this.player) this.player = localStorage.getItem('userLogged')
       if (!this.player) this.$router.push('/')
       if (this.$route.params.player) {
         this.player = this.$route.params.player

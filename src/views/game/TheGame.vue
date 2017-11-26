@@ -1,8 +1,8 @@
 <template>
   <div class="column is-12">
-    <div v-if="!winner">
+    <div v-if="!winner" class="box">
       <div class="columns">
-        <div class="column is-4">
+        <div class="column is-10 has-text-left">
           <div v-if="!isPlaying()" class="has-text-warning">
             <p>Aguardando {{player === 1 ? nameThem : nameUs}} jogar ... ... ...</p>
           </div>
@@ -10,26 +10,42 @@
             <p>{{player === 1 ? nameUs : nameThem}}, faça sua jogada !</p>
           </div>
         </div>
+        <div class="column is-2" v-if="isPlaying()">
+          <p :class="timer <= 5 ? 'has-text-danger' : 'has-text-success' ">{{timer}} segundos restantes ..</p>
+        </div>
       </div>
       <div class="columns">
-        <div class="column is-6">
-          <div class="box">
-            <div v-if="player === 1">
-              <table-board ref="tableBoardUs" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 1" :columns="columnsUs"></table-board>
+        <div class="column is-4 them-table">
+          <div v-if="player === 1" class="">
+            <table-board ref="tableBoardUs" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 1" :columns="columnsUs"></table-board>
+          </div>
+          <div v-if="player === 2">
+            <table-board ref="tableBoardThem" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 2" :columns="columnsThem"></table-board>
+          </div>
+        </div>
+        <div class="column is-3">
+          <div class="text-area">
+            <div v-for="msg in messages" class="has-text-left">
+              {{msg.user}}: {{ msg.text }}
             </div>
-            <div v-if="player === 2">
-              <table-board ref="tableBoardThem" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 2" :columns="columnsThem"></table-board>
+          </div>
+          <div class="field has-addons">
+            <div class="control">
+              <input type="text" class="input" placeholder="Digite ..." v-model="msgUser">
+            </div>
+            <div class="control">
+              <a class="button is-success" @click="addNewMsg('fsdf')">
+                Enviar
+              </a>
             </div>
           </div>
         </div>
-        <div class="column is-6">
-          <div class="box">
-            <div v-if="player === 1">
-              <table-board ref="tableBoardThem" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 2" :columns="columnsThem"></table-board>
-            </div>
-            <div v-if="player === 2">
-              <table-board ref="tableBoardUs" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 1" :columns="columnsUs"></table-board>
-            </div>
+        <div class="column is-5">
+          <div v-if="player === 1">
+            <table-board ref="tableBoardThem" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 2" :columns="columnsThem"></table-board>
+          </div>
+          <div v-if="player === 2">
+            <table-board ref="tableBoardUs" @onSelect="select" :isPlaying="isPlaying()" :itsMe="player === 1" :columns="columnsUs"></table-board>
           </div>
         </div>
       </div>
@@ -64,6 +80,10 @@
         record: null,
         recordPlayer: null,
         recordFleet: null,
+        recordMessage: null,
+        timer: 20,
+        messages: [],
+        msgUser: '',
         fleetUs: {},
         fleetThem: {},
         nameUs: '',
@@ -110,6 +130,29 @@
       FleetBoard
     },
     methods: {
+      setTimer () {
+        if (this.isPlaying()) {
+          this.timer--
+          setTimeout(this.setTimer, 1000)
+        } else {
+          this.timer = 20
+          setTimeout(this.setTimer, 1000)
+        }
+
+        if (this.timer === 0) {
+          if (this.playerPlaying === 1 && this.player === 1) {
+            this.recordPlayer.set('playerPlaying', 2)
+          } else {
+            this.recordPlayer.set('playerPlaying', 1)
+          }
+          alert('Demorou demais :I ')
+        }
+      },
+      addNewMsg () {
+        this.messages.push({user: this.player === 1 ? this.nameUs : this.nameThem, text: this.msgUser})
+        this.recordMessage.set('messages', this.messages)
+        this.msgUser = ''
+      },
       select (args) {
         if (this.playerPlaying === 1 && this.player === 1) {
           this.recordPlayer.set('playerPlaying', 2)
@@ -172,6 +215,7 @@
       this.recordFleet = this.ds.record.getRecord(`battleship/fleet/${this.$route.params.game}`)
       this.record = this.ds.record.getRecord(`battleship/game/${this.$route.params.game}`)
       this.recordPlayer = this.ds.record.getRecord(`battleship/player/${this.$route.params.game}`)
+      this.recordMessage = this.ds.record.getRecord(`battleship/msg/${this.$route.params.game}`)
       this.player = this.$route.params.player
 
       if (this.player === 1) {
@@ -212,6 +256,13 @@
         this.nameThem = values.nameThem
         this.nameUs = values.nameUs
       })
+
+      this.recordMessage.set('messages', [])
+      this.recordMessage.subscribe(values => {
+        this.messages = values.messages
+      })
+
+      this.setTimer()
     }
   }
 </script>
@@ -226,4 +277,11 @@
     color: #e34120
   .title
     font-size: 20px
+  .them-table
+    font-size: 12px
+  .text-area
+    height: 81%
+    margin-bottom: 20px
+    max-height: 81%
+    overflow: scroll
 </style>

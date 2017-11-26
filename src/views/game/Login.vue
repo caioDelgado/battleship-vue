@@ -2,46 +2,31 @@
   <div class="hero is-info box column is-12">
     <section class="columns">
       <div class="column is-6 has-text-right">
-        <a class="button is-light" @click="isNewPlayer = true">Soldado</a>
+        <a class="button is-light" @click="isNewPlayer = true">Recruta</a>
       </div>
       <div class="column is-6 has-text-left">
         <a class="button is-dark" @click="isNewPlayer = false">Veterano</a>
       </div>
     </section>
     <section class="hero columns" :class="isNewPlayer ? 'is-light' : 'is-dark'">
-      <div class="column is-offset-one-quarter is-half hero is-info">
-        <div v-if="isNewPlayer">
+      <div class="column is-offset-one-quarter is-half hero is-info fields">
+        <div>
           <div class="field">
-            <div class="control"><input type="text" v-model="newUser" placeholder="Usuário" class="input"></div>
+            <div class="control"><input type="text" v-model="userPlayer" placeholder="Usuário" class="input"></div>
           </div>
           <div class="field">
-            <div class="control"><input type="password" v-model="newPassword" placeholder="Senha" class="input"></div>
+            <div class="control"><input type="password" v-model="passwordPlayer" placeholder="Senha" class="input"></div>
           </div>
-          <div class="field">
+          <div class="field" v-show="isNewPlayer">
             <div class="control"><input type="password" v-model="confirmPassword" placeholder="Verificar Senha" class="input">
             </div>
           </div>
-        </div>
-
-        <div v-if="!isNewPlayer">
-          <div class="field">
-            <div class="control">
-              <input type="text" class="input" v-model="userPlayer" placeholder="Usuário">
-            </div>
-          </div>
-          <div class="field">
-            <div class="control">
-              <input type="password" class="input" v-model="passwordPlayer" placeholder="Senha">
-            </div>
-          </div>
-          <br>
-          <br>
         </div>
       </div>
     </section>
     <section class="hero is-info column is-offset-one-quarter is-half columns">
       <div class="column is-offset-one-quarter is-half">
-        <a class="button is-dark" @click="isNewPlayer ? register() : enter()">{{isNewPlayer ? 'Alistar-se' : 'Entrar à bordo' }}</a>
+        <a class="button is-dark" :disabled="(!userPlayer || !passwordPlayer) || (confirmPassword !== passwordPlayer && isNewPlayer )" @click="isNewPlayer ? register() : enter()">{{isNewPlayer ? 'Alistar-se' : 'Entrar à bordo' }}</a>
       </div>
     </section>
   </div>
@@ -67,6 +52,7 @@
         axios.get(`http://localhost:3001/api/login?user=${this.userPlayer}&password=${this.passwordPlayer}`)
           .then(response => {
             this.login(response.data)
+            localStorage.setItem('userLogged', response.data.user)
             this.$router.push({
               name: 'awaitPlayers',
               params: { user: response.data.user }
@@ -77,7 +63,22 @@
           })
       },
       register () {
-        alert('register')
+        const params = {
+          user: this.userPlayer,
+          password: this.passwordPlayer
+        }
+        axios.post(`http://localhost:3001/api/users`, params)
+          .then(response => {
+            this.login(response.data.data)
+            localStorage.setItem('userLogged', response.data.data.user)
+            this.$router.push({
+              name: 'awaitPlayers',
+              params: { user: response.data.data.user }
+            })
+          })
+          .catch(err => {
+            alert(err.response.data)
+          })
       }
     }
   }
@@ -88,9 +89,11 @@
     font-size: 24px
     color: #ffa726
     cursor: pointer
-    .fa-thumbs-o-down
-      font-size: 62px
-      color: #e34120
-    .title
-      font-size: 20px
+  .fa-thumbs-o-down
+    font-size: 62px
+    color: #e34120
+  .title
+    font-size: 20px
+  .fields
+    height: 200px
 </style>
