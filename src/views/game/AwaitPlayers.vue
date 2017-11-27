@@ -37,11 +37,26 @@
         </div>
       </div>
     </div>
+    <div class="box column is-8 is-offset-2 columns">
+      <div class="column is-10 is-offset-1">
+        <div class="hero is-dark">
+          <h1>Ranking oficial:</h1>
+        </div>
+        <div class="hero" v-for="(ranking, index) in rank">
+          <p class="columns">
+            <span class="has-text-left column is-1">{{index + 1}}º - </span>
+            <span class="has-text-left column is-6">Soldado: {{ranking.user}}</span>
+            <span class="has-text-right column is-5"> pontuação: {{format(ranking.ranking)}}</span>
+          </p>
+        </div>
+      </div>
+    </div>
   </div>
 </template>
 
 <script>
   import * as ds from 'deepstream.io-client-js'
+  import axios from 'axios'
 
   export default {
     data () {
@@ -56,6 +71,7 @@
         game: '',
         modalSkin: false,
         skinSelected: '',
+        rank: [],
         skins: [
           {name: 'Piratas', src: 'tema-pirata.png'},
           {name: 'Guerra', src: 'tema-guerra.png'},
@@ -65,6 +81,11 @@
     },
     components: {},
     methods: {
+      format (x) {
+        x = x + ''
+        const y = (x + '').length
+        return x.substring(0, y - 3) + '.' + x.substring(y - 3, y)
+      },
       selectSkin (skin) {
         this.skinSelected = skin
         this.modalSkin = false
@@ -133,6 +154,15 @@
       if (this.$route.params.player) {
         this.player = this.$route.params.player
       }
+
+      axios.get('http://localhost:3001/api/rank')
+        .then(response => {
+          console.log(response)
+          this.rank = response.data.data
+        })
+        .catch(err => {
+          alert(err.response.data.message)
+        })
     }
   }
 </script>
