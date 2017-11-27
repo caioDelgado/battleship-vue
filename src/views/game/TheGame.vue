@@ -55,6 +55,10 @@
         <p class="has-text-info">
           Winner !!! :)
         </p>
+        <p class="has-text-info">
+          Sua pontuação foi: {{scorePoints()}}
+        </p>
+        <a class="button is-info" @click="saveScore()">Salvar pontuação</a>
       </div>
       <div v-if="winner !== player">
         <p class="has-text-danger">
@@ -71,6 +75,7 @@
   import FleetBoard from '@/components/FleetBoard'
 
   import * as ds from 'deepstream.io-client-js'
+  import axios from 'axios'
 
   export default {
     data () {
@@ -89,6 +94,8 @@
         nameUs: '',
         nameThem: '',
         idShip: 0,
+        timerPoints: 0,
+        selectedsPoints: 0,
         shipsFleet: [
           {id: 1, src: 'ship1.png', length: 1},
           {id: 2, src: 'ship2.png', length: 2},
@@ -132,8 +139,32 @@
       FleetBoard
     },
     methods: {
+      saveScore () {
+        const params = {
+          user: this.player === 1 ? this.nameUs : this.nameThem,
+          ranking: this.scorePoints()
+        }
+        axios.post('http://localhost:3001/api/rank', params)
+          .then(
+            this.$router.push('awaitPlayers')
+          )
+          .catch(err => {
+            alert(err.response.data)
+          })
+      },
+      scorePoints () {
+        const timerPoints = this.timerPoints * 5
+        const selectedsPoints = this.selectedsPoints * 50
+        return 10000 - timerPoints - selectedsPoints
+      },
       imageUrl (img) {
         return require('@/assets/templates/themes/' + img)
+      },
+      setTimerPoints () {
+        if (!this.winner) {
+          this.timerPoints++
+          setTimeout(this.setTimerPoints, 1000)
+        }
       },
       setTimer () {
         if (!this.winner) {
@@ -161,6 +192,7 @@
         this.msgUser = ''
       },
       select (args) {
+        this.selectedsPoints++
         if (this.playerPlaying === 1 && this.player === 1) {
           this.recordPlayer.set('playerPlaying', 2)
         } else {
@@ -279,6 +311,8 @@
       this.recordSkin.subscribe(values => {
         this.skin = values.skin
       })
+
+      this.setTimerPoints()
     }
   }
 </script>
