@@ -50,22 +50,26 @@
         </div>
       </div>
     </div>
-    <div v-if="winner">
-      <div v-if="winner === player">
-        <p class="has-text-info">
-          Winner !!! :)
-        </p>
-        <p class="has-text-info">
-          Sua pontuação foi: {{scorePoints()}}
-        </p>
-        <a class="button is-info" @click="saveScore()">Salvar pontuação</a>
+    <div v-if="winner" class="box hero is-widescreen finish-box">
+      <div v-if="winner === player" class="columns">
+        <div class="box hero column is-4 is-offset-4">
+          <p class="has-text-info">
+            Winner !!! :)
+          </p>
+          <p class="has-text-info">
+            Sua pontuação foi: {{scorePoints()}}
+          </p>
+          <a class="button is-dark" @click="saveScore()">Novo Jogo</a>
+        </div>
       </div>
-      <div v-if="winner !== player">
-        <p class="has-text-danger">
-          Looser !!! :(
-        </p>
+      <div v-if="winner !== player" class="columns">
+        <div class="box hero column is-4 is-offset-4">
+          <p class="has-text-danger">
+            Looser !!! :(
+          </p>
+          <a class="button is-dark" @click="newGame()">Novo Jogo</a>
+        </div>
       </div>
-      <router-link :to="{name: 'awaitPlayers', params: {player: player === 1 ? nameUs : nameThem }}">Novo jogo</router-link>
     </div>
   </div>
 </template>
@@ -151,6 +155,9 @@
           .catch(err => {
             alert(err.response.data)
           })
+      },
+      newGame () {
+        this.$router.push({name: 'awaitPlayers'})
       },
       scorePoints () {
         const timerPoints = this.timerPoints * 5
@@ -334,4 +341,7 @@
     overflow: scroll
   .main
     margin-top: -20px
+  .finish-box
+    background-image: url("./../../assets/templates/finish.jpg")
+    height: 600px
 </style>

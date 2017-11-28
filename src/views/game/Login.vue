@@ -8,23 +8,49 @@
         <a class="button is-dark" @click="isNewPlayer = false">Veterano</a>
       </div>
     </section>
-    <section class="hero columns" :class="isNewPlayer ? 'is-light' : 'is-dark'">
-      <div class="column is-offset-one-quarter is-half hero is-info fields">
-        <div>
-          <div class="field">
-            <div class="control"><input type="text" v-model="userPlayer" placeholder="Usuário" class="input"></div>
+    <section class="hero" :class="isNewPlayer ? 'is-dark' : 'is-dark'">
+      <div class="columns">
+        <div class="column is-4">
+          <div v-if="isNewPlayer">
+            <figure class="image image-left is-128x128 has-text-right">
+              <img src="../../assets/templates/details/recruta-esquerda.png">
+            </figure>
           </div>
-          <div class="field">
-            <div class="control"><input type="password" v-model="passwordPlayer" placeholder="Senha" class="input"></div>
+          <div v-if="!isNewPlayer">
+            <figure class="image image-left is-128x128 has-text-right">
+              <img src="../../assets/templates/details/veterano.png">
+            </figure>
           </div>
-          <div class="field" v-show="isNewPlayer">
-            <div class="control"><input type="password" v-model="confirmPassword" placeholder="Verificar Senha" class="input">
+        </div>
+        <div class="column is-4 hero is-info fields">
+          <div>
+            <div class="field">
+              <div class="control"><input type="text" v-model="userPlayer" placeholder="Usuário" class="input"></div>
             </div>
+            <div class="field">
+              <div class="control"><input type="password" v-model="passwordPlayer" placeholder="Senha" class="input"></div>
+            </div>
+            <div class="field" v-show="isNewPlayer">
+              <div class="control"><input type="password" v-model="confirmPassword" placeholder="Verificar Senha" class="input">
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="column is-4">
+          <div v-if="isNewPlayer">
+            <figure class="image image-right is-128x128 has-text-right">
+              <img src="../../assets/templates/details/recruta-direita.png">
+            </figure>
+          </div>
+          <div v-if="!isNewPlayer">
+            <figure class="image image-right is-128x128 has-text-right">
+              <img src="../../assets/templates/details/veterano.png">
+            </figure>
           </div>
         </div>
       </div>
     </section>
-    <section class="hero is-info column is-offset-one-quarter is-half columns">
+    <section class="hero is-info column is-4 is-offset-4 columns">
       <div class="column is-offset-one-quarter is-half">
         <a class="button is-dark" :disabled="(!userPlayer || !passwordPlayer) || (confirmPassword !== passwordPlayer && isNewPlayer )" @click="isNewPlayer ? register() : enter()">{{isNewPlayer ? 'Alistar-se' : 'Entrar à bordo' }}</a>
       </div>
@@ -107,4 +133,8 @@
     font-size: 20px
   .fields
     height: 200px
+  .image-left
+    margin-left: 50%
+  .image-right
+    margin-left: 15%
 </style>
