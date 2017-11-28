@@ -38,7 +38,7 @@
   export default {
     data () {
       return {
-        isNewPlayer: true,
+        isNewPlayer: false,
         userPlayer: null,
         passwordPlayer: null,
         newUser: null,
